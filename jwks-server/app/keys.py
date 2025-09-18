@@ -1,4 +1,6 @@
 # app/keys.py
+import threading
+import time
 import uuid
 import datetime
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -9,7 +11,7 @@ keys = []
 
 # Key expiration duration (in seconds)
 KEY_EXPIRATION_SECONDS = 3600  # 1 hour
-
+KEY_ROTATION_INTERVAL = 1800  # 30 minutes
 
 def generate_rsa_key():
     """
@@ -40,7 +42,35 @@ def generate_rsa_key():
         "expiration": expiration,
     })
 
+def remove_expired_keys():
+    """
+    Remove expired keys from the in-memory storage.
+    """
+    global keys
+    now = datetime.datetime.utcnow()
+    keys = [key for key in keys if key["expiration"] > now]
 
+def start_key_rotation():
+    """
+    Start a background thread to periodically generate new keys and remove expired ones.
+    """
+    def rotate_keys():
+        while True:
+            # Generate a new key
+            generate_rsa_key()
+            print(f"[Key Rotation] New key generated. Total keys: {len(keys)}")
+
+            # Remove expired keys
+            remove_expired_keys()
+            print(f"[Key Rotation] Expired keys removed. Total keys: {len(keys)}")
+
+            # Wait for the next rotation interval
+            time.sleep(KEY_ROTATION_INTERVAL)
+
+    # Start the background thread
+    thread = threading.Thread(target=rotate_keys, daemon=True)
+    thread.start()
+    
 def get_valid_public_keys():
     """
     Return all unexpired public keys in JWKS format.

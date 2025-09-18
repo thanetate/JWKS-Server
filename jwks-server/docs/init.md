@@ -57,3 +57,7 @@ curl -X POST http://127.0.0.1:8080/auth
   {
     "error": "No suitable key found"
   }
+
+4. Key Rotation
+    Automatically generating new keys at regular intervals.
+    Removing expired keys from memory to ensure only valid keys are used.
