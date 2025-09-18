@@ -116,6 +116,7 @@ This project was developed with the assistance of AI tools to help with code gen
 - Write and refine the `/jwks` and `/auth` endpoints.
 - Improve error handling and validation.
 - Draft the `README.md` documentation.
+- Write unit tests for the /jwks and /auth endpoints, as well as for key generation and rotation functionality.
 
 Throughout the development process, I used AI in small, incremental steps. I prompted the AI to generate code in manageable chunks, tested each piece of functionality as it was implemented, and iteratively refined the code based on the results. Additionally, I asked the AI to explain key concepts (e.g., JWKS, JWT, RSA key generation, and key rotation) to deepen my understanding of the underlying principles and ensure I could apply them correctly.
 
@@ -128,6 +129,7 @@ The following prompts were used to guide the AI:
 - "Draft a README file for the JWKS server project."
 - "Explain how JWKS works and how it relates to JWT verification."
 - "Explain how RSA key pairs are generated and used in signing JWTs."
+- "Write unit tests for the /jwks and /auth endpoints."
 
 This acknowledgment is provided in compliance with academic honesty policies.
 
