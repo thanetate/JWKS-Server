@@ -61,3 +61,38 @@ curl -X POST http://127.0.0.1:8080/auth
 4. Key Rotation
     Automatically generating new keys at regular intervals.
     Removing expired keys from memory to ensure only valid keys are used.
+    
+    Key Generation:
+    The [Key Rotation] New key generated. Total keys: 1 log confirms that a new RSA key is being generated periodically.
+    Expired Key Removal:
+    The [Key Rotation] Expired keys removed. Total keys: 1 log confirms that expired keys are being removed from memory.
+    Key Count:
+    The total number of keys remains 1 because a new key is generated every rotation interval, and expired keys are removed.
+
+    [Key Rotation] New key generated. Total keys: 1 [Key Rotation] Expired keys removed. Total keys: 1 127.0.0.1 - - [18/Sep/2025 12:10:56] "GET /jwks HTTP/1.1" 200 -
+
+5. Improve Error Handling and Validation
+    Adding better error messages for invalid requests.
+    Validating query parameters and request payloads.
+
+    jwks-server [main●] % curl -X POST "http://127.0.0.1:8080/auth?expired=invalid"
+    {
+      "error": "Invalid 'expired' query parameter. Must be 'true' or 'false'."
+    }
+    jwks-server [main●] % curl -X POST "http://127.0.0.1:8080/auth?expired=true"
+    {
+      "error": "No suitable key found"
+    }
+    jwks-server [main●] % curl http://127.0.0.1:8080/jwks
+    {
+      "keys": [
+        {
+          "alg": "RS256",
+          "e": "AQAB",
+          "kid": "b663b1f9-ed91-405b-bb17-d27c9b60b451",
+          "kty": "RSA",
+          "n": "mdnfow6xWdU6MqJzctw3Hls6tN0ASr-K80aeHzFxB2Wg4Lex5ddFeIWctbJ4gRQfhxdb38s7YVf3bx0F4Rm2UTC5TyaoXnz0ladrSOvcvSn-M8CPwmht6sQSo8ql1nbIqSrt2EQ10aj9LPs2ANGskp-iY0qch_hz6fpviEGVtRwGJ_R9a03obT3Z9gBNdykUE5_8efUiZ9O7LNyR1W2121Xs6cyOc3vMqU-opH6oPf-smsYL7cdwdanSUEX8lE4SODdW8ZDE8rDem9pC1uc8D82w3zmAaLq9KrmPBqzc5ZrA9h_FhzkrgNUY6CChNxPbn-NW-JVPJsRTzgRXHB0vVw",
+          "use": "sig"
+        }
+      ]
+    }
