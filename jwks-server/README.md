@@ -109,6 +109,28 @@ This project is for educational purposes. In a real-world scenario, you’d want
 
     This server is for educational purposes and should not be used in production without additional security measures.
 
+## Acknowledgment of AI Usage
+This project was developed with the assistance of AI tools to help with code generation, debugging, and documentation. Specifically, AI was used to:
+- Scaffold the project structure.
+- Implement key functionality such as RSA key generation, JWT issuance, and key rotation.
+- Write and refine the `/jwks` and `/auth` endpoints.
+- Improve error handling and validation.
+- Draft the `README.md` documentation.
+
+Throughout the development process, I used AI in small, incremental steps. I prompted the AI to generate code in manageable chunks, tested each piece of functionality as it was implemented, and iteratively refined the code based on the results. Additionally, I asked the AI to explain key concepts (e.g., JWKS, JWT, RSA key generation, and key rotation) to deepen my understanding of the underlying principles and ensure I could apply them correctly.
+
+The following prompts were used to guide the AI:
+- "Scaffold a basic JWKS server in Python."
+- "Implement RSA key generation and key rotation."
+- "Write a `/jwks` endpoint to serve public keys in JWKS format."
+- "Write a `/auth` endpoint to issue JWTs."
+- "Improve error handling and validation for the endpoints."
+- "Draft a README file for the JWKS server project."
+- "Explain how JWKS works and how it relates to JWT verification."
+- "Explain how RSA key pairs are generated and used in signing JWTs."
+
+This acknowledgment is provided in compliance with academic honesty policies.
+
 ## Screenshots
 1. The test client running against the server.
 2. The test suite showing coverage percentage.
