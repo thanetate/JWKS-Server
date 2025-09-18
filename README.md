@@ -133,4 +133,8 @@ This acknowledgment is provided in compliance with academic honesty policies.
 
 ## Screenshots
 1. The test client running against the server.
+<img width="1686" height="736" alt="image" src="https://github.com/user-attachments/assets/dd8ef055-33d1-4afa-a4a0-c296c3647944" />
+<img width="1692" height="836" alt="image" src="https://github.com/user-attachments/assets/7d371387-ae80-44a3-923d-8282e4940f3d" />
+
 2. The test suite showing coverage percentage.
+<img width="1654" height="650" alt="image" src="https://github.com/user-attachments/assets/fe01da53-786b-4a4a-9e8b-06c02dad4ee2" />
