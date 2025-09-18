@@ -1,5 +1,6 @@
 # app/routes.py
 from flask import Blueprint, jsonify, request
+from app.keys import generate_rsa_key, get_valid_public_keys
 
 # Blueprint for routes
 bp = Blueprint("routes", __name__)
@@ -10,16 +11,17 @@ def register_routes(app):
     """
     app.register_blueprint(bp)
 
-# Placeholder for the JWKS endpoint
+# JWKS endpoint
 @bp.route("/jwks", methods=["GET"])
 def jwks():
     """
     JWKS endpoint to serve public keys.
     """
-    # Placeholder response
-    return jsonify({"keys": []}), 200
+    # Get valid public keys in JWKS format
+    public_keys = get_valid_public_keys()
+    return jsonify({"keys": public_keys}), 200
 
-# Placeholder for the Auth endpoint
+# Auth endpoint
 @bp.route("/auth", methods=["POST"])
 def auth():
     """
