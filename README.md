@@ -53,10 +53,9 @@ This project is for educational purposes and should not be used in production wi
 
     curl -X POST "http://127.0.0.1:8080/auth?expired=true"
 
-
-
 ## Testing
 pip install pytest pytest-cov
+
 pytest --cov=main
 
 ## Acknowledgment of AI Usage
