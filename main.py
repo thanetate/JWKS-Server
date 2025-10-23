@@ -6,7 +6,9 @@ import base64
 import json
 import jwt
 import datetime
+import sqlite3
 
+db_file = "totally_not_my_privateKeys.db"
 hostName = "localhost"
 serverPort = 8080
 
@@ -115,10 +117,47 @@ class MyServer(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    # db init
+    conn = sqlite3.connect(db_file)
+    create_table_query = """
+    CREATE TABLE IF NOT EXISTS keys (
+        kid INTEGER PRIMARY KEY AUTOINCREMENT,
+        key BLOB NOT NULL,
+        exp INTEGER NOT NULL
+    );
+    """
+    cursor = conn.cursor()
+    cursor.execute(create_table_query)  
+    conn.commit()
+    print(f"Database '{db_file}' initialized and ready.")
+
+    # get expiry timestamp
+    current_time = int(datetime.datetime.now().timestamp())
+    one_hour_later = int((datetime.datetime.now() + datetime.timedelta(hours=1)).timestamp())
+
+    # insert both expired and valid keys into db
+    # expired
+    cursor.execute(
+        "INSERT INTO keys (key, exp) VALUES (?, ?)",
+        (expired_pem.decode('utf-8'), current_time)
+    )
+    # valid
+    cursor.execute(
+        "INSERT INTO keys (key, exp) VALUES (?, ?)",
+        (pem.decode('utf-8'), one_hour_later)
+    )
+    conn.commit()
+    print("Keys have been generated and stored in the database.")
+
+    # start the web server
     webServer = HTTPServer((hostName, serverPort), MyServer)
     try:
+        print(f"Server started at http://{hostName}:{serverPort}")
         webServer.serve_forever()
     except KeyboardInterrupt:
         pass
 
     webServer.server_close()
+    # close the db connection
+    conn.close()
+    print("Server Stopped.")

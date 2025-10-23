@@ -1,5 +1,13 @@
 # JWKS Server
 
+Run the server
+python3 main.py
+
+Connect to the db
+sqlite3 totally_not_my_privateKeys.db
+
+.quit
+
 ## Objective
 This project implements a basic JSON Web Key Set (JWKS) server that:
 - Provides public keys with unique identifiers (`kid`) for verifying JSON Web Tokens (JWTs).
