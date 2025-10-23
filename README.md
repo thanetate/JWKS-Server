@@ -82,7 +82,7 @@ This acknowledgment is provided in compliance with academic honesty policies.
 
 ## Screenshots
 ### Grade Bot
-<img width="1000" height="348" alt="image" src="https://github.com/user-attachments/assets/338c1e96-0fd2-4640-8f06-f08d3b311297" />
+<img width="1000" height="200" alt="image" src="https://github.com/user-attachments/assets/2b202715-0dd6-463d-ae0b-57da5121b47d" />
 
 ### Test Suite Coverage
-<img width="1000" height="376" alt="image" src="https://github.com/user-attachments/assets/4bcab7f9-dee3-4b72-b2bd-76dd23aa7cc7" />
+<img width="1000" height="200" alt="image" src="https://github.com/user-attachments/assets/591efaee-c90d-4b1d-8f10-2ab27632056c" />
