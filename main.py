@@ -7,6 +7,7 @@ import json
 import jwt
 import datetime
 import sqlite3
+import base64
 
 db_file = "totally_not_my_privateKeys.db"
 hostName = "localhost"
@@ -70,6 +71,34 @@ class MyServer(BaseHTTPRequestHandler):
     def do_POST(self):
         parsed_path = urlparse(self.path)
         if parsed_path.path == "/auth":
+             # Check for HTTP Basic Authentication
+            auth_header = self.headers.get("Authorization")
+            if auth_header:
+                # Decode the Basic Auth header
+                auth_type, encoded_credentials = auth_header.split(" ", 1)
+                if auth_type == "Basic":
+                    decoded_credentials = base64.b64decode(encoded_credentials).decode("utf-8")
+                    username, password = decoded_credentials.split(":", 1)
+                    # Mock authentication (no actual validation)
+                    if username == "userABC" and password == "password123":
+                        # Proceed to generate a JWT
+                        pass  # Continue with the existing logic below
+
+            # Check for JSON payload
+            content_length = int(self.headers.get("Content-Length", 0))
+            if content_length > 0:
+                body = self.rfile.read(content_length)
+                try:
+                    payload = json.loads(body)
+                    if payload.get("username") == "userABC" and payload.get("password") == "password123":
+                        # Proceed to generate a JWT
+                        pass  # Continue with the existing logic below
+                except json.JSONDecodeError:
+                    self.send_response(400)
+                    self.end_headers()
+                    self.wfile.write(b"Invalid JSON payload")
+                    return
+            
             conn = sqlite3.connect(db_file) 
             cursor = conn.cursor() 
             query_params = parse_qs(parsed_path.query)
