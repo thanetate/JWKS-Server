@@ -39,3 +39,24 @@ def test_jwks_valid_keys(start_server):
     data = response.json()
     assert "keys" in data, "The response should contain a 'keys' field."
     assert len(data["keys"]) > 0, "The 'keys' field should contain at least one valid key."
+
+# Test unsupported HTTP methods
+def test_unsupported_method(start_server):
+    response = requests.put(f"http://{hostName}:{serverPort}/auth")
+    assert response.status_code == 405, "The server should return 405 for unsupported HTTP methods."
+  
+# Test Invalid Paths
+def test_invalid_path(start_server):
+    response = requests.get(f"http://{hostName}:{serverPort}/invalid-path")
+    assert response.status_code == 405, "The server should return 405 for invalid paths."
+
+# Test /auth with no keys
+def test_auth_no_keys(start_server):
+    conn = sqlite3.connect(db_file)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM keys;")  # Remove all keys
+    conn.commit()
+    conn.close()
+
+    response = requests.post(f"http://{hostName}:{serverPort}/auth")
+    assert response.status_code == 500, "The /auth endpoint should return 500 when no keys are available."
