@@ -66,30 +66,52 @@ class MyServer(BaseHTTPRequestHandler):
         self.send_response(405)
         self.end_headers()
         return
-
+    
     def do_POST(self):
         parsed_path = urlparse(self.path)
-        params = parse_qs(parsed_path.query)
         if parsed_path.path == "/auth":
-            headers = {
-                "kid": "goodKID"
-            }
-            token_payload = {
-                "user": "username",
-                "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-            }
-            if 'expired' in params:
-                headers["kid"] = "expiredKID"
-                token_payload["exp"] = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
-            encoded_jwt = jwt.encode(token_payload, pem, algorithm="RS256", headers=headers)
-            self.send_response(200)
-            self.end_headers()
-            self.wfile.write(bytes(encoded_jwt, "utf-8"))
-            return
+            query_params = parse_qs(parsed_path.query)
+            expired = "expired" in query_params
+            current_time = int(datetime.datetime.now().timestamp())
 
+            # query the db for keys
+            if expired:
+                cursor.execute("SELECT kid, key FROM keys WHERE exp <= ? ORDER BY exp DESC LIMIT 1", (current_time,))
+            else:
+                cursor.execute("SELECT kid, key FROM keys WHERE exp > ? ORDER BY exp ASC LIMIT 1", (current_time,))
+
+            row = cursor.fetchone()
+            if not row:
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(b"No key found in the db")
+                return
+
+            kid, private_key_pem = row
+
+            # deserialize the pk
+            private_key = serialization.load_pem_private_key(
+                private_key_pem.encode('utf-8'),
+                password=None,
+            )
+
+            # create a JWT
+            payload = {
+                "sub": "userABC",
+                "iat": current_time,
+                "exp": current_time + 3600,  # 1hr
+            }
+            token = jwt.encode(payload, private_key, algorithm="RS256", headers={"kid": str(kid)})
+
+            # send the response as a JWT
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"token": token}).encode('utf-8'))
+            return
+        
         self.send_response(405)
         self.end_headers()
-        return
 
     def do_GET(self):
         if self.path == "/.well-known/jwks.json":
