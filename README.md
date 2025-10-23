@@ -8,10 +8,6 @@ This project implements a RESTful JWKS (JSON Web Key Set) server that:
 - Includes an `/auth` endpoint to issue JWTs and a `/jwks.json` endpoint to serve public keys.
 - Handles the issuance of JWTs signed with expired keys when requested.
 
-The server is backed by a SQLite database to persist private keys, ensuring availability even after server restarts.
-
-This project is for educational purposes and should not be used in production without additional security measures.
-
 ## Features
 1. **SQLite-Backed Key Storage**:
    - RSA private keys are stored in a SQLite database (`totally_not_my_privateKeys.db`).
@@ -35,33 +31,39 @@ This project is for educational purposes and should not be used in production wi
 ## Requirements
 - Python 3.8+
 - SQLite (pre-installed on most systems)
+- Pytest
 
 ## Usage
 1. Start the server:
 
     python3 main.py
 
-2. Generate a valid jwt:
+2. Generate a valid JWT:
 
     curl -X POST http://127.0.0.1:8080/auth
+    OR
+    curl -X POST -H "Authorization: Basic dXNlckFCQzp1c2VyMTIz" http://localhost:8080/auth
+    curl -X POST -H "Content-Type: application/json" -d '{"username": "userABC", "password": "password123"}' http://localhost:8080/auth
 
-3. Verify the JWT is using the public key:
+4. Verify the JWT is using the public key:
 
     curl -X GET http://127.0.0.1:8080/.well-known/jwks.json
 
-4. Request a JWT signed with an expired key:
+6. Request a JWT signed with an expired key:
 
     curl -X POST "http://127.0.0.1:8080/auth?expired=true"
 
-## Testing
-pip install pytest pytest-cov
+7. Run the test client:
 
-pytest --cov=main
+     ./gradebot project2
+
+8. Stop the server, then use test suite:
+
+     pytest --cov=main
 
 ## Acknowledgment of AI Usage
 This project was developed with the assistance of AI tools to help with code generation, debugging, and documentation. Specifically, AI was used to:
 
-- Scaffold the project structure.
 - Implement SQLite-backed key storage and database queries.
 - Write and refine the /jwks.json and /auth endpoints.
 - Improve error handling and validation.
@@ -71,7 +73,6 @@ This project was developed with the assistance of AI tools to help with code gen
 Throughout the development process, I used AI in small, incremental steps. I prompted the AI to generate code in manageable chunks, tested each piece of functionality as it was implemented, and iteratively refined the code based on the results. Additionally, I asked the AI to explain key concepts (e.g., SQLite, JWKS, JWT, RSA key generation, and key rotation) to deepen my understanding of the underlying principles and ensure I could apply them correctly.
 
 The following prompts were used to guide the AI:
-- "Scaffold a JWKS server with SQLite-backed key storage."
 - "Write a /jwks.json endpoint to serve public keys from a database."
 - "Implement a /auth endpoint to issue JWTs signed with RSA keys stored in SQLite."
 - "Explain how to securely store and retrieve RSA keys in SQLite."
@@ -80,3 +81,8 @@ The following prompts were used to guide the AI:
 This acknowledgment is provided in compliance with academic honesty policies.
 
 ## Screenshots
+### Grade Bot
+<img width="1000" height="348" alt="image" src="https://github.com/user-attachments/assets/338c1e96-0fd2-4640-8f06-f08d3b311297" />
+
+### Test Suite Coverage
+<img width="1000" height="376" alt="image" src="https://github.com/user-attachments/assets/4bcab7f9-dee3-4b72-b2bd-76dd23aa7cc7" />
