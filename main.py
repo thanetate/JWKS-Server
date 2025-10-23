@@ -70,6 +70,8 @@ class MyServer(BaseHTTPRequestHandler):
     def do_POST(self):
         parsed_path = urlparse(self.path)
         if parsed_path.path == "/auth":
+            conn = sqlite3.connect(db_file) 
+            cursor = conn.cursor() 
             query_params = parse_qs(parsed_path.query)
             expired = "expired" in query_params
             current_time = int(datetime.datetime.now().timestamp())
@@ -115,6 +117,8 @@ class MyServer(BaseHTTPRequestHandler):
     
     def do_GET(self):
         if self.path == "/.well-known/jwks.json":
+            conn = sqlite3.connect(db_file) 
+            cursor = conn.cursor() 
             current_time = int(datetime.datetime.now().timestamp())
 
             # query the db for keys

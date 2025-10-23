@@ -56,7 +56,8 @@ This project is for educational purposes and should not be used in production wi
 
 
 ## Testing
-
+pip install pytest pytest-cov
+pytest --cov=main tests/
 
 ## Acknowledgment of AI Usage
 This project was developed with the assistance of AI tools to help with code generation, debugging, and documentation. Specifically, AI was used to:
