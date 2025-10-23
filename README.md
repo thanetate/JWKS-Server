@@ -1,150 +1,82 @@
-# JWKS Server
+# SQLite-Backed JWKS Server
 
-Run the server
-python3 main.py
-
-Connect to the db
-sqlite3 totally_not_my_privateKeys.db
-
-.quit
-
-## Objective
-This project implements a basic JSON Web Key Set (JWKS) server that:
+## Overview
+This project implements a RESTful JWKS (JSON Web Key Set) server that:
 - Provides public keys with unique identifiers (`kid`) for verifying JSON Web Tokens (JWTs).
-- Implements key expiry for enhanced security.
-- Includes an authentication endpoint to issue JWTs.
-- Handles the issuance of JWTs signed with expired keys based on a query parameter.
+- Issues JWTs signed with RSA private keys stored in a SQLite database.
+- Supports key expiry for enhanced security.
+- Includes an `/auth` endpoint to issue JWTs and a `/jwks.json` endpoint to serve public keys.
+- Handles the issuance of JWTs signed with expired keys when requested.
 
-This project is for educational purposes. In a real-world scenario, you’d want to integrate with a proper authentication system and ensure security best practices.
+The server is backed by a SQLite database to persist private keys, ensuring availability even after server restarts.
 
----
+This project is for educational purposes and should not be used in production without additional security measures.
 
 ## Features
-- **Key Rotation**: Automatically generates new RSA key pairs at regular intervals and removes expired keys.
-- **JWKS Endpoint**: Serves public keys in JWKS format for verifying JWTs.
-- **Auth Endpoint**: Issues JWTs signed with valid keys and supports issuing tokens with expired keys.
-- **Error Handling**: Provides meaningful error messages and proper HTTP status codes for invalid requests.
+1. **SQLite-Backed Key Storage**:
+   - RSA private keys are stored in a SQLite database (`totally_not_my_privateKeys.db`).
+   - Keys are associated with a unique `kid` and an expiry timestamp (`exp`).
 
----
+2. **Endpoints**:
+   - **`POST /auth`**:
+     - Issues a JWT signed with a valid (non-expired) private key.
+     - If the `expired` query parameter is provided, issues a JWT signed with an expired private key.
+   - **`GET /.well-known/jwks.json`**:
+     - Returns all valid (non-expired) public keys in JWKS format.
+
+3. **JWT and JWKS**:
+   - JWTs include the `kid` in their headers to identify the signing key.
+   - The `kid` in the JWT header matches the `kid` in the JWKS response, allowing verifiers to identify the correct public key.
+
+4. **Key Expiry**:
+   - Keys are automatically filtered based on their expiry timestamps.
+
 
 ## Requirements
-- Python 3.8 or higher
-- Libraries:
-  - Flask
-  - cryptography
-  - PyJWT
-  - pytest (for testing)
-
----
-
-## Installation
-1. Clone the repository:
-
-   git clone <repository-url>
-   cd jwks-server
-
-2. Create a VM
-
-    python3 -m venv venv
-    source venv/bin/activate
-
-3. Install Dependencies 
-
-    pip install -r requirements.txt
+- Python 3.8+
+- SQLite (pre-installed on most systems)
 
 ## Usage
 1. Start the server:
 
-    python3 run.py
+    python3 main.py
 
-2. The server will run on http://127.0.0.1:8080
-3. Test the endpoints using curl or Postman
-
-## Endpoints
-1. /jwks (GET)
-
-    Description - Returns the public keys in JWKS format.
-    Example - curl http://127.0.0.1:8080/jwks
-
-    Response - 
-    {
-    "keys": [
-        {
-        "kty": "RSA",
-        "kid": "unique-key-id",
-        "use": "sig",
-        "alg": "RS256",
-        "n": "base64-modulus",
-        "e": "base64-exponent"
-        }
-    ]
-    }
-2. /auth (POST)
-
-    Description - Issues a JWT signed with a valid key. Supports issuing tokens with expired keys using the expired query parameter.
-    Parameters - expired (optional): true or false. Default is false. 
-    Example - curl -X POST http://127.0.0.1:8080/auth
-
-    Response -
-    {
-        "token": "eyJhbGciOiJSUzI1NiIsImtpZCI6..."
-    }
-
-## Testing
-1. Run the test suite
-
-    pytest --cov=app
-
-2. Ensure test coverage is over 80%
-
-## Example Workflow
-1. Start the Server
-
-    python3 run.py
-
-2. Generate a valid JWT
+2. Generate a valid jwt:
 
     curl -X POST http://127.0.0.1:8080/auth
 
-3. Verify the JWT using the public key from /jwks
+3. Verify the JWT is using the public key:
 
-4. Request a JWT signed with an expired key
+    curl -X GET http://127.0.0.1:8080/.well-known/jwks.json
+
+4. Request a JWT signed with an expired key:
 
     curl -X POST "http://127.0.0.1:8080/auth?expired=true"
 
-## Notes
-The kid in the JWT header matches the kid in the JWKS response, allowing verifiers to identify the correct public key.
 
-This server is for educational purposes and should not be used in production without additional security measures.
+
+## Testing
+
 
 ## Acknowledgment of AI Usage
 This project was developed with the assistance of AI tools to help with code generation, debugging, and documentation. Specifically, AI was used to:
-- Scaffold the project structure.
-- Implement key functionality such as RSA key generation, JWT issuance, and key rotation.
-- Write and refine the `/jwks` and `/auth` endpoints.
-- Improve error handling and validation.
-- Draft the `README.md` documentation.
-- Write unit tests for the /jwks and /auth endpoints, as well as for key generation and rotation functionality.
 
-Throughout the development process, I used AI in small, incremental steps. I prompted the AI to generate code in manageable chunks, tested each piece of functionality as it was implemented, and iteratively refined the code based on the results. Additionally, I asked the AI to explain key concepts (e.g., JWKS, JWT, RSA key generation, and key rotation) to deepen my understanding of the underlying principles and ensure I could apply them correctly.
+- Scaffold the project structure.
+- Implement SQLite-backed key storage and database queries.
+- Write and refine the /jwks.json and /auth endpoints.
+- Improve error handling and validation.
+- Draft the README.md documentation.
+- Write unit tests for the /jwks.json and /auth endpoints, as well as for database functionality.
+
+Throughout the development process, I used AI in small, incremental steps. I prompted the AI to generate code in manageable chunks, tested each piece of functionality as it was implemented, and iteratively refined the code based on the results. Additionally, I asked the AI to explain key concepts (e.g., SQLite, JWKS, JWT, RSA key generation, and key rotation) to deepen my understanding of the underlying principles and ensure I could apply them correctly.
 
 The following prompts were used to guide the AI:
-- "Scaffold a basic JWKS server in Python."
-- "Implement RSA key generation and key rotation."
-- "Write a `/jwks` endpoint to serve public keys in JWKS format."
-- "Write a `/auth` endpoint to issue JWTs."
-- "Improve error handling and validation for the endpoints."
-- "Draft a README file for the JWKS server project."
-- "Explain how JWKS works and how it relates to JWT verification."
-- "Explain how RSA key pairs are generated and used in signing JWTs."
-- "Write unit tests for the /jwks and /auth endpoints."
+- "Scaffold a JWKS server with SQLite-backed key storage."
+- "Write a /jwks.json endpoint to serve public keys from a database."
+- "Implement a /auth endpoint to issue JWTs signed with RSA keys stored in SQLite."
+- "Explain how to securely store and retrieve RSA keys in SQLite."
+- "Write unit tests for the /auth and /jwks.json endpoints."
 
 This acknowledgment is provided in compliance with academic honesty policies.
 
 ## Screenshots
-1. The test client running against the server.
-<img width="1686" height="736" alt="image" src="https://github.com/user-attachments/assets/dd8ef055-33d1-4afa-a4a0-c296c3647944" />
-<img width="1692" height="836" alt="image" src="https://github.com/user-attachments/assets/7d371387-ae80-44a3-923d-8282e4940f3d" />
-
-2. The test suite showing coverage percentage.
-<img width="1654" height="650" alt="image" src="https://github.com/user-attachments/assets/fe01da53-786b-4a4a-9e8b-06c02dad4ee2" />
