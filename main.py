@@ -112,30 +112,46 @@ class MyServer(BaseHTTPRequestHandler):
         
         self.send_response(405)
         self.end_headers()
-
+    
     def do_GET(self):
         if self.path == "/.well-known/jwks.json":
+            current_time = int(datetime.datetime.now().timestamp())
+
+            # query the db for keys
+            cursor.execute("SELECT kid, key FROM keys WHERE exp > ?", (current_time,))
+            rows = cursor.fetchall()
+
+            # JWKS response
+            keys = []
+            for row in rows:
+                kid, private_key_pem = row
+
+                # deserialize the pk
+                private_key = serialization.load_pem_private_key(
+                    private_key_pem.encode('utf-8'),
+                    password=None,
+                )
+                public_key = private_key.public_key()
+                numbers = public_key.public_numbers()
+
+                # add pk to response
+                keys.append({
+                    "alg": "RS256",
+                    "kty": "RSA",
+                    "use": "sig",
+                    "kid": str(kid),
+                    "n": int_to_base64(numbers.n),
+                    "e": int_to_base64(numbers.e),
+                })
+
             self.send_response(200)
             self.send_header("Content-type", "application/json")
             self.end_headers()
-            keys = {
-                "keys": [
-                    {
-                        "alg": "RS256",
-                        "kty": "RSA",
-                        "use": "sig",
-                        "kid": "goodKID",
-                        "n": int_to_base64(numbers.public_numbers.n),
-                        "e": int_to_base64(numbers.public_numbers.e),
-                    }
-                ]
-            }
-            self.wfile.write(bytes(json.dumps(keys), "utf-8"))
+            self.wfile.write(json.dumps({"keys": keys}).encode('utf-8'))
             return
 
         self.send_response(405)
         self.end_headers()
-        return
 
 
 if __name__ == "__main__":
